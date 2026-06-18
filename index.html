@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OrbitLab | N-Body Orbit Simulator</title>
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="sim-panel" aria-label="Orbit simulation">
+        <canvas id="orbit-canvas" width="1200" height="800"></canvas>
+      </section>
+
+      <aside class="control-panel" aria-label="Simulation controls">
+        <div class="brand-block">
+          <p class="eyebrow">OrbitLab</p>
+          <h1>N-body orbit simulator</h1>
+          <p class="summary">Explore gravitational systems, numerical integration, and orbital behavior in real time.</p>
+        </div>
+
+        <div class="control-group">
+          <label for="scenario-select">Scenario</label>
+          <select id="scenario-select"></select>
+        </div>
+
+        <div class="button-row">
+          <button id="play-toggle" type="button">Pause</button>
+          <button id="reset-button" type="button">Reset</button>
+        </div>
+
+        <div class="control-group">
+          <label for="speed-slider">Simulation speed</label>
+          <input id="speed-slider" type="range" min="0.2" max="5" step="0.1" value="1" />
+          <output id="speed-output">1.0x</output>
+        </div>
+
+        <div class="control-group">
+          <label for="timestep-slider">Timestep</label>
+          <input id="timestep-slider" type="range" min="0.1" max="4" step="0.1" value="1" />
+          <output id="timestep-output">1.0</output>
+        </div>
+
+        <dl class="metrics">
+          <div>
+            <dt>Bodies</dt>
+            <dd id="body-count">0</dd>
+          </div>
+          <div>
+            <dt>Elapsed days</dt>
+            <dd id="elapsed-days">0</dd>
+          </div>
+          <div>
+            <dt>Integrator</dt>
+            <dd>Semi-implicit Euler</dd>
+          </div>
+        </dl>
+
+        <section class="transfer-panel" aria-label="Hohmann transfer calculator">
+          <div>
+            <p class="eyebrow">Maneuver Lab</p>
+            <h2>Hohmann transfer</h2>
+          </div>
+
+          <div class="control-group">
+            <label for="inner-radius">Starting orbit radius</label>
+            <input id="inner-radius" type="number" min="40" step="10" value="180" />
+          </div>
+
+          <div class="control-group">
+            <label for="outer-radius">Target orbit radius</label>
+            <input id="outer-radius" type="number" min="40" step="10" value="360" />
+          </div>
+
+          <dl class="metrics compact">
+            <div>
+              <dt>Burn 1</dt>
+              <dd id="burn-one">0</dd>
+            </div>
+            <div>
+              <dt>Burn 2</dt>
+              <dd id="burn-two">0</dd>
+            </div>
+            <div>
+              <dt>Total delta-v</dt>
+              <dd id="total-delta-v">0</dd>
+            </div>
+            <div>
+              <dt>Transfer time</dt>
+              <dd id="transfer-time">0</dd>
+            </div>
+          </dl>
+        </section>
+      </aside>
+    </main>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>

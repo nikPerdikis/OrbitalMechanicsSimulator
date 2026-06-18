@@ -1,0 +1,18 @@
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Editor settings
+.vscode/
+.idea/
+
+# Logs and temporary files
+*.log
+tmp/
+temp/
+
+# Dependency/build folders for future versions
+node_modules/
+dist/
+build/
+
