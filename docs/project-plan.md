@@ -1,35 +1,27 @@
-# OrbitLab Project Plan
+# Starship Mission Lab Project Plan
 
 ## Version 1: Browser Demo
 
 - Static HTML/CSS/JavaScript app
-- Canvas-based 2D rendering
-- N-body gravitational acceleration
-- Semi-implicit Euler integration
-- Preset orbital systems
-- Orbit trails and basic metrics
+- Canvas-based 2D transfer rendering
 - Hohmann transfer calculator and overlay
+- Starship mission profile selector for every planet from Mercury through Neptune
+- Launch-to-LEO, refueling count, transfer injection, arrival capture, and launch-window estimates
 
-## Version 2: Resume-Level Physics
+## Version 2: Resume-Level Mission Planning
 
 - Animate spacecraft motion along the Hohmann transfer path
 - Add a learning mode that explains each equation beside the visualization
-- Add multiple integrators:
-  - Explicit Euler
-  - Semi-implicit Euler
-  - Velocity Verlet
-  - RK4
-- Show energy drift over time
-- Show momentum conservation
-- Add a comparison view for integrators
+- Add mission sequence diagrams for launch, refueling, transfer, capture, and landing
+- Add aerocapture and gravity-assist options
+- Add real-world unit presets for Earth orbit and target parking orbits
+- Add transfer-window explanations for planetary missions
 
-## Version 3: Interactive Sandbox
+## Version 3: Interactive Mission Sandbox
 
-- Click to select a body
-- Drag to move a body
-- Drag a launch vector to create a new body
-- Edit mass, radius, velocity, and color
-- Save and load scenarios with JSON
+- Edit mission assumptions such as parking orbit altitude, payload mass, and refueling level
+- Save and load mission studies with JSON
+- Compare Moon, Mars, Venus, and Jupiter mission requirements
 
 ## Version 4: Portfolio Polish
 

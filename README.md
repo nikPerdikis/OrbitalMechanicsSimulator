@@ -1,17 +1,18 @@
-# OrbitLab
+# Starship Mission Lab
 
-OrbitLab is an interactive orbital mechanics simulator built for learning, experimenting, and demonstrating real-time N-body physics in the browser.
+Starship Mission Lab is an interactive mission-planning simulator built for learning, experimenting, and modeling Starship-inspired missions from Earth's surface to planetary orbit across the solar system.
 
 ## Project Goal
 
-This project is designed to be strong enough for a resume and simple enough to grow in stages. The first version focuses on a polished 2D simulator with:
+This project is designed to be strong enough for a resume and simple enough to grow in stages. The first version focuses on a polished Starship transfer planner with:
 
-- Newtonian gravity between multiple bodies
-- Orbit trails
+- Starship mission profiles for Mercury, Venus, Mars, Jupiter, Saturn, Uranus, and Neptune
+- Launch-to-LEO, orbital refueling, transfer injection, and arrival capture estimates
+- Launch-window phase angle and synodic-period geometry
+- Real-unit mission estimates in `km/s`, metric tons, launch count, degrees, and days
 - A Hohmann transfer calculator for planning two-burn transfers between circular orbits
-- Pause, reset, speed, and timestep controls
-- Preset systems such as Sun-Earth-Moon and binary stars
-- A clean structure that can later support RK4, Velocity Verlet, energy graphs, and 3D rendering
+- A focused transfer visualization without the earlier generic star-system sandbox
+- A clean structure that can later support refueling estimates, launch windows, and mission sequence diagrams
 
 ## Live Demo
 
@@ -26,36 +27,32 @@ https://YOUR-GITHUB-USERNAME.github.io/YOUR-REPOSITORY-NAME/
 ## File Structure
 
 ```text
-Orbit Simulations/
-├── index.html
-├── README.md
-├── .gitignore
-├── assets/
-│   └── README.md
-├── docs/
-│   └── project-plan.md
-└── src/
-    ├── main.js
-    ├── styles.css
-    ├── physics/
-    │   ├── body.js
-    │   ├── integrators.js
-    │   └── simulation.js
-    ├── scenarios/
-    │   └── presets.js
-    └── ui/
-        └── controls.js
+OrbitalMechanicsSimulator/
+|-- index.html
+|-- README.md
+|-- .gitignore
+|-- assets/
+|   `-- README.md
+|-- docs/
+|   |-- orbital-mechanics-notes.md
+|   `-- project-plan.md
+`-- src/
+    |-- main.js
+    |-- styles.css
+    `-- physics/
+        |-- hohmann.js
+        `-- starshipMissions.js
 ```
 
 ## Resume Description
 
-**OrbitLab** - Built an interactive N-body orbital mechanics simulator using JavaScript Canvas, numerical integration, and real-time visualization of gravitational systems. Designed preset orbital scenarios, orbit trails, simulation controls, and a Hohmann transfer calculator for estimating two-burn orbital maneuvers.
+**Starship Mission Lab** - Built an interactive orbital mechanics simulator for modeling Starship-inspired missions from Earth's surface to planetary orbit. Implemented patched-conics transfer estimates, launch-to-orbit and refueling assumptions, arrival capture delta-v, launch-window geometry, Canvas transfer visualization, and learning notes that connect the UI to orbital mechanics concepts.
 
 ## Next Milestones
 
-1. Animate the Hohmann transfer spacecraft along the transfer ellipse.
-2. Add selectable Euler, RK4, and Velocity Verlet integrators.
-3. Add energy and momentum diagnostics.
-4. Add click-and-drag body creation.
+1. Add a visual Starship marker traveling along selected planetary transfers.
+2. Add mission sequence diagrams for launch, refueling, transfer, capture, and landing.
+3. Add aerocapture and direct-entry options where appropriate.
+4. Add real ephemeris data instead of circular coplanar orbit assumptions.
 5. Add scenario sharing through URL parameters.
 6. Add a short demo GIF to this README.

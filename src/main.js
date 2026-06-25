@@ -1,14 +1,12 @@
-import { Simulation } from "./physics/simulation.js";
 import { calculateHohmannTransfer } from "./physics/hohmann.js";
-import { scenarios, getScenario } from "./scenarios/presets.js";
-import { setupControls, updateMetrics } from "./ui/controls.js";
+import { designStarshipMission, planets } from "./physics/starshipMissions.js";
 
 const canvas = document.querySelector("#orbit-canvas");
 const context = canvas.getContext("2d");
-const simulation = new Simulation(scenarios[0]);
+const SANDBOX_MU = 7200;
 
-let controls;
 let currentTransfer = null;
+let activeMissionTargetId = null;
 
 function resizeCanvas() {
   const rect = canvas.getBoundingClientRect();
@@ -18,68 +16,65 @@ function resizeCanvas() {
   context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 }
 
-function drawSpaceBackground(width, height) {
+function drawTransferBackground(width, height) {
   context.fillStyle = "#03070c";
   context.fillRect(0, 0, width, height);
 
-  context.fillStyle = "rgba(255, 255, 255, 0.5)";
-  for (let i = 0; i < 120; i += 1) {
-    const x = (i * 97) % width;
-    const y = (i * 193) % height;
-    context.fillRect(x, y, 1, 1);
+  context.strokeStyle = "rgba(112, 214, 200, 0.08)";
+  context.lineWidth = 1;
+  for (let radius = 80; radius < Math.max(width, height); radius += 80) {
+    context.beginPath();
+    context.arc(width / 2, height / 2, radius, 0, Math.PI * 2);
+    context.stroke();
   }
 }
 
-function drawSimulation() {
+function drawTransferVisualization() {
   const width = canvas.clientWidth;
   const height = canvas.clientHeight;
   const centerX = width / 2;
   const centerY = height / 2;
 
-  drawSpaceBackground(width, height);
+  drawTransferBackground(width, height);
   context.save();
   context.translate(centerX, centerY);
 
   drawHohmannOverlay();
+  drawCentralBody();
+  drawStarshipMarker();
 
-  for (const body of simulation.bodies) {
-    if (body.trail.length > 1) {
-      context.beginPath();
-      context.strokeStyle = `${body.color}99`;
-      context.lineWidth = 1.5;
-      context.moveTo(body.trail[0].x, body.trail[0].y);
+  context.restore();
+}
 
-      for (const point of body.trail) {
-        context.lineTo(point.x, point.y);
-      }
+function drawCentralBody() {
+  const glow = context.createRadialGradient(0, 0, 0, 0, 0, 54);
+  glow.addColorStop(0, "#4cc9f0");
+  glow.addColorStop(1, "rgba(76, 201, 240, 0)");
 
-      context.stroke();
-    }
-  }
+  context.fillStyle = glow;
+  context.beginPath();
+  context.arc(0, 0, 54, 0, Math.PI * 2);
+  context.fill();
 
-  for (const body of simulation.bodies) {
-    const glow = context.createRadialGradient(
-      body.position.x,
-      body.position.y,
-      0,
-      body.position.x,
-      body.position.y,
-      body.radius * 3,
-    );
-    glow.addColorStop(0, body.color);
-    glow.addColorStop(1, "rgba(255, 255, 255, 0)");
+  context.fillStyle = "#4cc9f0";
+  context.beginPath();
+  context.arc(0, 0, 14, 0, Math.PI * 2);
+  context.fill();
+}
 
-    context.fillStyle = glow;
-    context.beginPath();
-    context.arc(body.position.x, body.position.y, body.radius * 3, 0, Math.PI * 2);
-    context.fill();
+function drawStarshipMarker() {
+  const innerRadius = Number(document.querySelector("#inner-radius").value);
 
-    context.fillStyle = body.color;
-    context.beginPath();
-    context.arc(body.position.x, body.position.y, body.radius, 0, Math.PI * 2);
-    context.fill();
-  }
-
+  context.save();
+  context.translate(innerRadius, 0);
+  context.fillStyle = "#eef5f8";
+  context.beginPath();
+  context.moveTo(12, 0);
+  context.lineTo(-8, -6);
+  context.lineTo(-4, 0);
+  context.lineTo(-8, 6);
+  context.closePath();
+  context.fill();
   context.restore();
 }
 
@@ -123,7 +118,7 @@ function drawHohmannOverlay() {
 
 function updateHohmannPanel() {
   currentTransfer = calculateHohmannTransfer({
-    mu: simulation.gravitationalConstant * simulation.bodies[0].mass,
+    mu: SANDBOX_MU,
     innerRadius: document.querySelector("#inner-radius").value,
     outerRadius: document.querySelector("#outer-radius").value,
   });
@@ -132,31 +127,88 @@ function updateHohmannPanel() {
     return;
   }
 
-  document.querySelector("#burn-one").textContent = currentTransfer.firstBurn.toFixed(2);
-  document.querySelector("#burn-two").textContent = currentTransfer.secondBurn.toFixed(2);
-  document.querySelector("#total-delta-v").textContent = currentTransfer.totalDeltaV.toFixed(2);
+  document.querySelector("#burn-one").textContent = `${currentTransfer.firstBurn.toFixed(2)} sim u/day`;
+  document.querySelector("#burn-two").textContent = `${currentTransfer.secondBurn.toFixed(2)} sim u/day`;
+  document.querySelector("#total-delta-v").textContent =
+    `${currentTransfer.totalDeltaV.toFixed(2)} sim u/day`;
   document.querySelector("#transfer-time").textContent = `${Math.round(currentTransfer.transferTime)} days`;
 }
 
-function tick() {
-  if (controls.isRunning) {
-    for (let i = 0; i < controls.speed; i += 1) {
-      simulation.step(controls.timestep);
-    }
+function setupStarshipMissionPlanner() {
+  const missionSelect = document.querySelector("#mission-select");
+
+  for (const profile of planets) {
+    const option = document.createElement("option");
+    option.value = profile.id;
+    option.textContent = profile.name;
+    missionSelect.append(option);
   }
 
-  drawSimulation();
+  missionSelect.addEventListener("change", handleMissionTargetChange);
+  document.querySelector("#leo-altitude").addEventListener("input", updateStarshipMissionPanel);
+  document.querySelector("#target-orbit-altitude").addEventListener("input", updateStarshipMissionPanel);
+  document.querySelector("#refill-propellant").addEventListener("input", updateStarshipMissionPanel);
+  document.querySelector("#tanker-delivery").addEventListener("input", updateStarshipMissionPanel);
+  updateStarshipMissionPanel();
+}
+
+function handleMissionTargetChange() {
+  const selectedPlanet = planets.find((planet) => planet.id === document.querySelector("#mission-select").value);
+
+  if (selectedPlanet) {
+    document.querySelector("#target-orbit-altitude").value = selectedPlanet.defaultOrbitAltitudeKm;
+  }
+
+  updateStarshipMissionPanel();
+}
+
+function updateStarshipMissionPanel() {
+  const targetId = document.querySelector("#mission-select").value;
+  const selectedPlanet = planets.find((planet) => planet.id === targetId);
+
+  if (selectedPlanet && targetId !== activeMissionTargetId) {
+    document.querySelector("#target-orbit-altitude").value = selectedPlanet.defaultOrbitAltitudeKm;
+    activeMissionTargetId = targetId;
+  }
+
+  const selectedMission = designStarshipMission({
+    targetId,
+    leoAltitudeKm: Number(document.querySelector("#leo-altitude").value),
+    targetOrbitAltitudeKm: Number(document.querySelector("#target-orbit-altitude").value),
+    propellantNeededAfterRefuelT: Number(document.querySelector("#refill-propellant").value),
+    tankerDeliveryT: Number(document.querySelector("#tanker-delivery").value),
+  });
+
+  document.querySelector("#mission-launch").textContent =
+    `${selectedMission.launchToLeoDeltaV.toFixed(1)} km/s`;
+  document.querySelector("#mission-tankers").textContent =
+    selectedMission.tankerLaunches.toLocaleString();
+  document.querySelector("#mission-launches").textContent =
+    selectedMission.totalLaunches.toLocaleString();
+  document.querySelector("#mission-departure").textContent =
+    `${selectedMission.transPlanetInjectionDeltaV.toFixed(2)} km/s`;
+  document.querySelector("#mission-arrival").textContent =
+    `${selectedMission.arrivalCaptureDeltaV.toFixed(2)} km/s`;
+  document.querySelector("#mission-total-dv").textContent =
+    `${selectedMission.missionDeltaVFromSurface.toFixed(2)} km/s`;
+  document.querySelector("#mission-time").textContent =
+    `${Math.round(selectedMission.transferDays).toLocaleString()} days`;
+  document.querySelector("#mission-phase").textContent =
+    `${selectedMission.phaseAngleDeg.toFixed(1)} deg`;
+  document.querySelector("#mission-window").textContent =
+    `${Math.round(selectedMission.synodicPeriodDays).toLocaleString()} days`;
+  document.querySelector("#mission-architecture").textContent = selectedMission.architecture;
+  document.querySelector("#mission-assumptions").textContent = selectedMission.assumptions;
+  document.querySelector("#mission-caveat").textContent = selectedMission.caveat;
+}
+
+function tick() {
+  drawTransferVisualization();
   updateHohmannPanel();
-  updateMetrics(simulation);
   requestAnimationFrame(tick);
 }
 
-controls = setupControls({
-  scenarios,
-  simulation,
-  onScenarioChange: (scenarioId) => simulation.loadScenario(getScenario(scenarioId)),
-});
-
+setupStarshipMissionPlanner();
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 document.querySelector("#inner-radius").addEventListener("input", updateHohmannPanel);

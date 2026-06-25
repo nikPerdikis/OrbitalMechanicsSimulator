@@ -3,63 +3,103 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OrbitLab | N-Body Orbit Simulator</title>
+    <title>Starship Mission Lab | Solar System Simulator</title>
     <link rel="stylesheet" href="src/styles.css" />
   </head>
   <body>
     <main class="app-shell">
-      <section class="sim-panel" aria-label="Orbit simulation">
+      <section class="sim-panel" aria-label="Starship transfer visualization">
         <canvas id="orbit-canvas" width="1200" height="800"></canvas>
       </section>
 
-      <aside class="control-panel" aria-label="Simulation controls">
+      <aside class="control-panel" aria-label="Mission controls">
         <div class="brand-block">
-          <p class="eyebrow">OrbitLab</p>
-          <h1>N-body orbit simulator</h1>
-          <p class="summary">Explore gravitational systems, numerical integration, and orbital behavior in real time.</p>
+          <p class="eyebrow">Starship Mission Lab</p>
+          <h1>Solar system mission simulator</h1>
+          <p class="summary">Model Starship-inspired missions from Earth's surface to planetary orbit across the solar system.</p>
         </div>
 
-        <div class="control-group">
-          <label for="scenario-select">Scenario</label>
-          <select id="scenario-select"></select>
-        </div>
-
-        <div class="button-row">
-          <button id="play-toggle" type="button">Pause</button>
-          <button id="reset-button" type="button">Reset</button>
-        </div>
-
-        <div class="control-group">
-          <label for="speed-slider">Simulation speed</label>
-          <input id="speed-slider" type="range" min="0.2" max="5" step="0.1" value="1" />
-          <output id="speed-output">1.0x</output>
-        </div>
-
-        <div class="control-group">
-          <label for="timestep-slider">Timestep</label>
-          <input id="timestep-slider" type="range" min="0.1" max="4" step="0.1" value="1" />
-          <output id="timestep-output">1.0</output>
-        </div>
-
-        <dl class="metrics">
+        <section class="transfer-panel" aria-label="Starship mission planner">
           <div>
-            <dt>Bodies</dt>
-            <dd id="body-count">0</dd>
+            <p class="eyebrow">Starship Planner</p>
+            <h2>Planetary mission design</h2>
           </div>
-          <div>
-            <dt>Elapsed days</dt>
-            <dd id="elapsed-days">0</dd>
+
+          <div class="control-group">
+            <label for="mission-select">Target planet</label>
+            <select id="mission-select"></select>
           </div>
-          <div>
-            <dt>Integrator</dt>
-            <dd>Semi-implicit Euler</dd>
+
+          <div class="control-grid">
+            <div class="control-group">
+              <label for="leo-altitude">LEO altitude (km)</label>
+              <input id="leo-altitude" type="number" min="160" step="10" value="400" />
+            </div>
+
+            <div class="control-group">
+              <label for="target-orbit-altitude">Target orbit altitude (km)</label>
+              <input id="target-orbit-altitude" type="number" min="100" step="100" value="300" />
+            </div>
+
+            <div class="control-group">
+              <label for="refill-propellant">Refill target (t)</label>
+              <input id="refill-propellant" type="number" min="0" step="50" value="1200" />
+            </div>
+
+            <div class="control-group">
+              <label for="tanker-delivery">Tanker delivery (t)</label>
+              <input id="tanker-delivery" type="number" min="1" step="10" value="100" />
+            </div>
           </div>
-        </dl>
+
+          <dl class="metrics compact">
+            <div>
+              <dt>Launch to LEO</dt>
+              <dd id="mission-launch">0 km/s</dd>
+            </div>
+            <div>
+              <dt>Tanker launches</dt>
+              <dd id="mission-tankers">0</dd>
+            </div>
+            <div>
+              <dt>Total launches</dt>
+              <dd id="mission-launches">0</dd>
+            </div>
+            <div>
+              <dt>Injection burn</dt>
+              <dd id="mission-departure">0 km/s</dd>
+            </div>
+            <div>
+              <dt>Orbit capture</dt>
+              <dd id="mission-arrival">0 km/s</dd>
+            </div>
+            <div>
+              <dt>Surface-to-orbit total</dt>
+              <dd id="mission-total-dv">0 km/s</dd>
+            </div>
+            <div>
+              <dt>Transfer time</dt>
+              <dd id="mission-time">0 days</dd>
+            </div>
+            <div>
+              <dt>Phase angle</dt>
+              <dd id="mission-phase">0 deg</dd>
+            </div>
+            <div>
+              <dt>Window repeats</dt>
+              <dd id="mission-window">0 days</dd>
+            </div>
+          </dl>
+
+          <p id="mission-architecture" class="detail-text"></p>
+          <p id="mission-assumptions" class="detail-text"></p>
+          <p id="mission-caveat" class="detail-text muted"></p>
+        </section>
 
         <section class="transfer-panel" aria-label="Hohmann transfer calculator">
           <div>
             <p class="eyebrow">Maneuver Lab</p>
-            <h2>Hohmann transfer</h2>
+            <h2>Sandbox transfer</h2>
           </div>
 
           <div class="control-group">
@@ -94,6 +134,6 @@
       </aside>
     </main>
 
-    <script type="module" src="src/main.js"></script>
+    <script type="module" src="src/main.js?v=2"></script>
   </body>
 </html>
